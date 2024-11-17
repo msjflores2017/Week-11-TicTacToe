@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic-Tac-Toe</title>
+  <!-- Link to Bootstrap for styling -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* Styling for the Tic-Tac-Toe grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      /* Creates a 3x3 grid */
+      grid-gap: 5px;
+      /* Spacing between cells */
+      justify-content: center;
+      /* Center the grid */
+      margin-top: 20px;
+      /* Add some space above the grid */
+    }
+
+    .cell {
+      width: 100px;
+      /* Fixed size for each cell */
+      height: 100px;
+      display: flex;
+      /* Flexbox for centering content */
+      justify-content: center;
+      align-items: center;
+      border: 1px solid #ccc;
+      /* Light border for cells */
+      font-size: 2rem;
+      /* Large text for X and O */
+      cursor: pointer;
+      /* Pointer cursor to indicate interactivity */
+    }
+
+    .cell.taken {
+      pointer-events: none;
+      /* Prevent clicking on already selected cells */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container text-center mt-5">
+    <h1>Tic-Tac-Toe</h1>
+    <!-- Heading to display the current player's turn -->
+    <h2 id="turn">Player X's Turn</h2>
+    <!-- Container for the game grid -->
+    <div class="grid" id="gameGrid">
+      <!-- Cells will be generated dynamically using JavaScript -->
+    </div>
+    <!-- Button to restart the game -->
+    <button id="restart" class="btn btn-primary mt-3">Restart Game</button>
+  </div>
+
+  <script>
+    // Variables to track game state
+    const grid = document.getElementById('gameGrid'); // Reference to the grid container
+    const turnHeading = document.getElementById('turn'); // Reference to the heading displaying the turn
+    const restartButton = document.getElementById('restart'); // Reference to the restart button
+    let currentPlayer = 'X'; // Tracks the current player (X or O)
+    let gameActive = true; // Indicates if the game is still active
+    let board = Array(9).fill(null); // Array representing the game board (9 cells)
+
+    // Predefined winning combinations
+    const winningCombos = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+      [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+      [0, 4, 8], [2, 4, 6]             // Diagonals
+    ];
+
+    // Function to create the grid dynamically
+    function createGrid() {
+      grid.innerHTML = ''; // Clear the grid for restart
+      board = Array(9).fill(null); // Reset the board state
+      gameActive = true; // Reset game status
+      currentPlayer = 'X'; // Set the first player to X
+      turnHeading.textContent = "Player X's Turn"; // Update the heading
+
+      // Create 9 cells for the grid
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div'); // Create a new div for each cell
+        cell.classList.add('cell'); // Add the 'cell' class for styling
+        cell.dataset.index = i; // Assign a unique index to each cell
+        cell.addEventListener('click', handleMove); // Attach click event listener
+        grid.appendChild(cell); // Add the cell to the grid container
+      }
+    }
+
+    // Function to handle a player's move
+    function handleMove(event) {
+      const cell = event.target; // The cell that was clicked
+      const index = cell.dataset.index; // Get the index of the clicked cell
+
+      if (!gameActive || board[index]) return; // Ignore clicks if the game is over or cell is already taken
+
+      cell.textContent = currentPlayer; // Display the current player's symbol (X or O)
+      cell.classList.add('taken'); // Mark the cell as taken
+      board[index] = currentPlayer; // Update the board state
+
+      // Check for a winner or draw
+      if (checkWinner()) {
+        turnHeading.textContent = `Player ${currentPlayer} Wins! 🎉`; // Update the heading
+        alert(`Player ${currentPlayer} Wins!`); // Display a Bootstrap alert
+        gameActive = false; // End the game
+      } else if (board.every(cell => cell)) {
+        turnHeading.textContent = "It's a Draw! 🤝"; // Update the heading for a draw
+        alert("It's a Draw!"); // Display a Bootstrap alert
+        gameActive = false; // End the game
+      } else {
+        // Switch to the other player
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        turnHeading.textContent = `Player ${currentPlayer}'s Turn`; // Update the heading
+      }
+    }
+
+    // Function to check if a player has won
+    function checkWinner() {
+      return winningCombos.some(combo => {
+        const [a, b, c] = combo; // Destructure the indices of a winning combination
+        return board[a] && board[a] === board[b] && board[a] === board[c]; // Check if all 3 cells are the same
+      });
+    }
+
+    // Event listener to restart the game
+    restartButton.addEventListener('click', createGrid);
+
+    // Initialize the game when the page loads
+    createGrid();
+  </script>
+</body>
+
+</html>
